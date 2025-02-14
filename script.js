@@ -69,13 +69,13 @@ domReady(function () {
             itemDiv.className = 'cart-item';
             itemDiv.innerHTML = `
                 <span class="product-name">${product?.name || 'Unknown Product'}</span>
-                <span class="product-price">₹${product?.price?.toFixed(2) || '0.00'}</span>
+                <span class="product-price">Rs. ${product?.price?.toFixed(2) || '0.00'}</span>
                 <input type="number" 
                        value="${item.quantity}" 
                        min="1" 
                        data-index="${index}"
                        class="quantity-input">
-                <span class="item-total">₹${(product?.price * item.quantity).toFixed(2) || '0.00'}</span>
+                <span class="item-total">Rs. ${(product?.price * item.quantity).toFixed(2) || '0.00'}</span>
             `;
             cartDiv.appendChild(itemDiv);
         });
@@ -87,7 +87,7 @@ domReady(function () {
             const product = productDetails[item.code];
             return sum + (product?.price || 0) * item.quantity;
         }, 0);
-        document.getElementById('total').innerHTML = `<strong>Total:</strong> ₹${total.toFixed(2)}`;
+        document.getElementById('total').innerHTML = `<strong>Total:</strong> Rs. ${total.toFixed(2)}`;
     }
 
     // Event Listeners
@@ -189,14 +189,14 @@ domReady(function () {
                 doc.setFontSize(10);
                 doc.text(product?.name || 'Unknown Item', 22, yPos);
                 doc.text(item.quantity.toString(), 102, yPos);
-                doc.text(`₹${(product?.price * item.quantity).toFixed(2)}`, 162, yPos);
+                doc.text(`Rs. ${(product?.price * item.quantity).toFixed(2)}`, 162, yPos);
                 yPos += 8;
             });
 
             // Total
             yPos += 10;
             doc.setFontSize(14);
-            doc.text(`Total Amount: ₹${totalAmount.toFixed(2)}`, 20, yPos);
+            doc.text(`Total Amount: Rs. ${totalAmount.toFixed(2)}`, 20, yPos);
 
             // Add QR Code
             const qrCanvas = qrContainer.querySelector('canvas');
@@ -292,10 +292,10 @@ domReady(function () {
                 <ul>
                     ${bill.items.map(item => `
                         <li>${productDetails[item.code]?.name || 'Unknown'} 
-                        (x${item.quantity}) - ₹${(productDetails[item.code]?.price * item.quantity).toFixed(2)}</li>
+                        (x${item.quantity}) - Rs. ${(productDetails[item.code]?.price * item.quantity).toFixed(2)}</li>
                     `).join('')}
                 </ul>
-                <p>Total: ₹${bill.total}</p>
+                <p>Total: Rs. ${bill.total}</p>
                 <hr>
             `;
             historyContainer.appendChild(billElement);

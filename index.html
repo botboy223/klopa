@@ -124,6 +124,14 @@
         </div>
     </div>
 
+    <!-- Printable Bill Section -->
+    <div id="printable-bill" class="printable-bill hidden">
+        <h2>Bill Details</h2>
+        <div id="print-bill-items"></div>
+        <div id="print-total">Total: ₹0</div>
+        <div id="print-qr-code"></div>
+    </div>
+
     <!-- Dialog Box -->
     <div id="dialogBox" class="dialog">
         <div class="dialog-content">
@@ -136,57 +144,5 @@
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
     <script src="script.js"></script>
-    <script>
-        document.getElementById('openDialogBtn').onclick = function() {
-            document.getElementById('dialogBox').style.display = 'block';
-        };
-
-        document.getElementById('closeDialogBtn').onclick = function() {
-            document.getElementById('dialogBox').style.display = 'none';
-        };
-
-        window.onclick = function(event) {
-            if (event.target == document.getElementById('dialogBox')) {
-                document.getElementById('dialogBox').style.display = 'none';
-            }
-        };
-
-        function showMoreOptions() {
-            document.getElementById('moreOptions').classList.toggle('hidden');
-        }
-
-        function switchToOption1() {
-            hideAllOptions();
-            document.getElementById('option1').style.display = 'block';
-        }
-
-        function switchToOption2() {
-            hideAllOptions();
-            document.getElementById('option2').style.display = 'block';
-        }
-
-        function switchToOption3() {
-            hideAllOptions();
-            document.getElementById('option3').style.display = 'block';
-        }
-
-        function switchToOption4() {
-            hideAllOptions();
-            document.getElementById('option4').style.display = 'block';
-        }
-
-        function switchToOption5() {
-            hideAllOptions();
-            document.getElementById('option5').style.display = 'block';
-        }
-
-        function hideAllOptions() {
-            document.getElementById('option1').style.display = 'none';
-            document.getElementById('option2').style.display = 'none';
-            document.getElementById('option3').style.display = 'none';
-            document.getElementById('option4').style.display = 'none';
-            document.getElementById('option5').style.display = 'none';
-        }
-    </script>
 </body>
 </html>

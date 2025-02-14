@@ -159,18 +159,16 @@ domReady(function () {
             // Wait for QR code rendering
             await new Promise(resolve => setTimeout(resolve, 500));
 
-            // Create PDF
-            // In script.js, BEFORE generating the PDF
+            / Initialize PDF and yPos
             const doc = new jsPDF();
-            
-            // Load Noto Sans font (hosted CDN example)
-            const fontUrl = "https://cdn.jsdelivr.net/npm/@pdf-lib/standard-fonts@1.0.0/NotoSans-Regular.ttf";
-            const font = await fetch(fontUrl).then(res => res.arrayBuffer());
-            doc.addFileToVFS("NotoSans-Regular.ttf", font);
-            doc.addFont("NotoSans-Regular.ttf", "NotoSans", "normal");
-            doc.setFont("NotoSans");
+            let yPos = 20; // Critical initialization
 
-            // Header
+            
+                // Use default font (avoid custom font issues)
+            doc.setFont("helvetica");
+            doc.setFontType("normal");
+
+
             doc.setFontSize(22);
             doc.text("INVOICE", 105, yPos, { align: 'center' });
             yPos += 15;
@@ -212,12 +210,10 @@ domReady(function () {
               fontStyle: "bold"
             });
             // Add QR Code
-            const qrCanvas = qrContainer.querySelector('canvas');
             if (qrCanvas) {
                 const qrData = qrCanvas.toDataURL('image/png');
-                doc.addImage(qrData, 'PNG', 140, yPos - 10, 50, 50);
+                doc.addImage(qrData, 'PNG', 20, yPos + 20, 50, 50);
             }
-
             // Save to history
             billHistory.push({
                 date: new Date().toLocaleString(),

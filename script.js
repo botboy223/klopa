@@ -118,136 +118,110 @@ domReady(function () {
 
     // PDF Generation
     document.getElementById('generate-bill').addEventListener('click', async () => {
-        try {
-            // Validate UPI details
-            if (!upiDetails.upiId || !upiDetails.name || !upiDetails.note) {
-                throw new Error('Please configure UPI details first');
-            }
-
-            // Calculate total
-            const totalAmount = cart.reduce((sum, item) => {
-                const product = productDetails[item.code];
-                return sum + (product?.price || 0) * item.quantity;
-            }, 0);
-
-            // Generate UPI URL
-            const upiUrl = `upi://pay?pa=${upiDetails.upiId}` +
-                            `&pn=${encodeURIComponent(upiDetails.name)}` +
-                            `&am=${totalAmount.toFixed(2)}` +
-                            `&cu=INR` +
-                            `&tn=${encodeURIComponent(upiDetails.note)}`;
-
-            // Create QR Code
-            const qrCode = new QRCodeStyling({
-                width: 200,
-                height: 200,
-                data: upiUrl,
-                dotsOptions: {
-                    color: "#000",
-                    type: "rounded"
-                },
-                backgroundOptions: {
-                    color: "#ffffff"
-                }
-            });
-
-            // Render QR Code
-            const qrContainer = document.getElementById('bill-qr-code');
-            qrContainer.innerHTML = '';
-            qrCode.append(qrContainer);
-
-            // Wait for QR code rendering
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            / Initialize PDF and yPos
-            const doc = new jsPDF();
-            let yPos = 20; // Critical initialization
-
-            
-                // Use default font (avoid custom font issues)
-            doc.setFont("helvetica");
-            doc.setFontType("normal");
-
-
-            doc.setFontSize(22);
-            doc.text("INVOICE", 105, yPos, { align: 'center' });
-            yPos += 15;
-
-            // Invoice Details
-            doc.setFontSize(12);
-            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, yPos);
-            doc.text(`Time: ${new Date().toLocaleTimeString()}`, 160, yPos);
-            yPos += 15;
-
-            // Table Header
-            doc.setFillColor(240, 240, 240);
-            doc.rect(20, yPos, 170, 10, 'F');
-            doc.setFontSize(12);
-            doc.text("Item", 22, yPos + 7);
-            doc.text("Qty", 100, yPos + 7);
-            doc.text("Price", 160, yPos + 7);
-            yPos += 12;
-
-            cart.forEach(item => {
-              const product = productDetails[item.code];
-              const itemTotal = (product?.price || 0) * item.quantity;
-            
-              // Item Name (left-aligned)
-              doc.text(product?.name || "Unknown", 20, yPos);
-            
-              // Quantity (center-aligned)
-              doc.text(item.quantity.toString(), 80, yPos, { align: "center" });
-            
-              // Price (right-aligned with ₹ symbol)
-              doc.text(`₹${itemTotal.toFixed(2)}`, 170, yPos, { align: "right" }); // 170 = right margin
-            
-              yPos += 10;
-            });
-
-            doc.setFontSize(14);
-            doc.text(`Total Amount: ₹${totalAmount.toFixed(2)}`, 20, yPos, { 
-              align: "left",
-              fontStyle: "bold"
-            });
-            // Add QR Code
-            if (qrCanvas) {
-                const qrData = qrCanvas.toDataURL('image/png');
-                doc.addImage(qrData, 'PNG', 20, yPos + 20, 50, 50);
-            }
-            // Save to history
-            billHistory.push({
-                date: new Date().toLocaleString(),
-                total: totalAmount.toFixed(2),
-                items: [...cart]
-            });
-            saveToLocalStorage('billHistory', billHistory);
-
-            // Open PDF
-            const pdfBlob = doc.output('blob');
-            window.open(URL.createObjectURL(pdfBlob), '_blank');
-
-            // Clear cart
-            cart = [];
-            displayCart();
-
-        } catch (error) {
-            alert(`Error: ${error.message}`);
-            console.error(error);
+    try {
+        // Validate UPI details
+        if (!upiDetails.upiId || !upiDetails.name || !upiDetails.note) {
+            throw new Error('Please configure UPI details first');
         }
-    });
 
-    // UPI Form Handler
-    document.getElementById('qrForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        upiDetails = {
-            upiId: document.getElementById('upi_id').value.trim(),
-            name: document.getElementById('name').value.trim(),
-            note: document.getElementById('note').value.trim()
-        };
-        saveToLocalStorage('upiDetails', upiDetails);
-        alert('UPI details saved!');
-    });
+        // Calculate total
+        const totalAmount = cart.reduce((sum, item) => {
+            const product = productDetails[item.code];
+            return sum + (product?.price || 0) * item.quantity;
+        }, 0);
 
+        // Generate UPI URL
+        const upiUrl = `upi://pay?pa=${upiDetails.upiId}` +
+                      `&pn=${encodeURIComponent(upiDetails.name)}` +
+                      `&am=${totalAmount.toFixed(2)}` +
+                      `&cu=INR` +
+                      `&tn=${encodeURIComponent(upiDetails.note)}`;
+
+        // Create QR Code
+        const qrCode = new QRCodeStyling({
+            width: 200,
+            height: 200,
+            data: upiUrl,
+            dotsOptions: { color: "#000", type: "rounded" },
+            backgroundOptions: { color: "#ffffff" }
+        });
+
+        // Render QR Code
+        const qrContainer = document.getElementById('bill-qr-code');
+        qrContainer.innerHTML = '';
+        qrCode.append(qrContainer);
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Initialize PDF
+        const doc = new jsPDF();
+        let yPos = 20;
+
+        // Configure Font
+        doc.setFont("helvetica");
+        doc.setFontType("normal");
+
+        // Header
+        doc.setFontSize(22);
+        doc.text("INVOICE", 105, yPos, { align: 'center' });
+        yPos += 15;
+
+        // Date/Time
+        doc.setFontSize(12);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, yPos);
+        doc.text(`Time: ${new Date().toLocaleTimeString()}`, 160, yPos);
+        yPos += 15;
+
+        // Table Header
+        doc.setFillColor(240, 240, 240);
+        doc.rect(20, yPos, 170, 10, 'F');
+        doc.setFontSize(12);
+        doc.text("Item", 20, yPos + 7);
+        doc.text("Qty", 100, yPos + 7);
+        doc.text("Price", 170, yPos + 7, { align: 'right' });
+        yPos += 12;
+
+        // Items
+        cart.forEach(item => {
+            const product = productDetails[item.code];
+            const itemTotal = (product?.price || 0) * item.quantity;
+
+            doc.text(product?.name || "Unknown", 20, yPos);
+            doc.text(item.quantity.toString(), 100, yPos, { align: "center" });
+            doc.text(`₹${itemTotal.toFixed(2)}`, 170, yPos, { align: "right" });
+            yPos += 10;
+        });
+
+        // Total
+        doc.setFontSize(14);
+        doc.text(`Total Amount: ₹${totalAmount.toFixed(2)}`, 20, yPos + 10);
+
+        // QR Code
+        const qrCanvas = qrContainer.querySelector('canvas');
+        if (qrCanvas) {
+            const qrData = qrCanvas.toDataURL('image/png');
+            doc.addImage(qrData, 'PNG', 20, yPos + 30, 50, 50);
+        }
+
+        // Save history
+        billHistory.push({
+            date: new Date().toLocaleString(),
+            total: totalAmount.toFixed(2),
+            items: [...cart]
+        });
+        saveToLocalStorage('billHistory', billHistory);
+
+        // Open PDF
+        window.open(doc.output('bloburl'), '_blank');
+
+        // Clear cart
+        cart = [];
+        displayCart();
+
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+        console.error(error);
+    }
+});
     // Import/Export Handlers
     document.getElementById('download-data').addEventListener('click', () => {
         const data = {

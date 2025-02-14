@@ -1,45 +1,91 @@
-#bill-container {
-    width: 50%;
-    margin: 0 auto;
+body {
     font-family: Arial, sans-serif;
-}
-
-#bill-details {
-    border: 1px solid #000;
-    padding: 20px;
-    background-color: #f9f9f9;
-}
-
-#product-list {
-    list-style-type: none;
+    background-color: #f5f5f5;
+    margin: 0;
     padding: 0;
-}
-
-#product-list li {
-    padding: 5px 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
-#total {
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-#qr-container {
-    margin-top: 20px;
+.container {
+    max-width: 600px;
+    background-color: #ffffff;
+    padding: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
     text-align: center;
+    width: 100%;
+}
+
+.element {
+    margin-bottom: 22px;
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 10px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 button {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
     cursor: pointer;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    margin-bottom: 22px;
 }
 
 button:hover {
     background-color: #0056b3;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+    }
+
+    input {
+        width: 92%;
+    }
+
+    button {
+        width: 100%;
+    }
+}
+
+/* Printable Bill Styling */
+.printable-bill {
+    display: none;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .printable-bill, .printable-bill * {
+        visibility: visible;
+    }
+    .printable-bill {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
 }

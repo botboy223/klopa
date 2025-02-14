@@ -183,13 +183,14 @@ domReady(function () {
             doc.text("Price", 160, yPos + 7);
             yPos += 12;
 
-            // Items
             cart.forEach(item => {
                 const product = productDetails[item.code];
-                doc.setFontSize(10);
-                doc.text(product?.name || 'Unknown Item', 22, yPos);
+                const itemPrice = product?.price || 0; // Handle missing prices
+                const itemTotal = itemPrice * item.quantity;
+            
+                doc.text(product?.name || 'Unknown', 22, yPos);
                 doc.text(item.quantity.toString(), 102, yPos);
-                doc.text(`₹${(product?.price * item.quantity).toFixed(2)}`, 162, yPos);
+                doc.text(`₹${itemTotal.toFixed(2)}`, 162, yPos); // Proper formatting
                 yPos += 8;
             });
 

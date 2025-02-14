@@ -15,79 +15,10 @@ function loadFromLocalStorage(key) {
     return value ? JSON.parse(value) : null;
 }
 
-function switchToOption1() {
-    document.getElementById('option1').style.display = 'block';
-    document.getElementById('option2').style.display = 'none';
-    document.getElementById('option3').style.display = 'none';
-    document.getElementById('option4').style.display = 'none';
-    document.getElementById('option5').style.display = 'none';
-}
-
-function switchToOption2() {
-    document.getElementById('option1').style.display = 'none';
-    document.getElementById('option2').style.display = 'block';
-    document.getElementById('option3').style.display = 'none';
-    document.getElementById('option4').style.display = 'none';
-    document.getElementById('option5').style.display = 'none';
-}
-
-function switchToOption3() {
-    document.getElementById('option1').style.display = 'none';
-    document.getElementById('option2').style.display = 'none';
-    document.getElementById('option3').style.display = 'block';
-    document.getElementById('option4').style.display = 'none';
-    document.getElementById('option5').style.display = 'none';
-}
-
-function switchToOption4() {
-    document.getElementById('option1').style.display = 'none';
-    document.getElementById('option2').style.display = 'none';
-    document.getElementById('option3').style.display = 'none';
-    document.getElementById('option4').style.display = 'block';
-    document.getElementById('option5').style.display = 'none';
-}
-
-function switchToOption5() {
-    document.getElementById('option1').style.display = 'none';
-    document.getElementById('option2').style.display = 'none';
-    document.getElementById('option3').style.display = 'none';
-    document.getElementById('option4').style.display = 'none';
-    document.getElementById('option5').style.display = 'block';
-}
-
 domReady(function () {
     let productDetails = loadFromLocalStorage('productDetails') || {};
     let cart = [];
-    let upiDetails = loadFromLocalStorage('upiDetails') || {};
     let billHistory = loadFromLocalStorage('billHistory') || [];
-
-    function onScanSuccessOption1(decodeText, decodeResult) {
-        document.getElementById('barcode').value = decodeText;
-        if (productDetails[decodeText]) {
-            document.getElementById('product-name').value = productDetails[decodeText].name;
-            document.getElementById('product-price').value = productDetails[decodeText].price;
-        } else {
-            document.getElementById('product-name').value = '';
-            document.getElementById('product-price').value = '';
-        }
-    }
-
-    function onScanSuccessOption2(decodeText, decodeResult) {
-        if (productDetails[decodeText]) {
-            const product = productDetails[decodeText];
-            const item = cart.find(item => item.code === decodeText);
-
-            if (item) {
-                item.quantity += 1;
-            } else {
-                cart.push({ code: decodeText, quantity: 1 });
-            }
-
-            displayCart();
-        } else {
-            alert("Unknown product: " + decodeText);
-        }
-    }
 
     function displayCart() {
         const cartDiv = document.getElementById('cart');
@@ -97,7 +28,7 @@ domReady(function () {
             const product = productDetails[item.code];
             const itemDiv = document.createElement('div');
             itemDiv.innerHTML = `
-                ${item.code} - ₹${product.price} - ${product.name} 
+                ${product.name} - ₹${product.price} 
                 Quantity: <input type="number" value="${item.quantity}" min="1" data-index="${index}">
             `;
             cartDiv.appendChild(itemDiv);
@@ -108,7 +39,6 @@ domReady(function () {
 
     function calculateTotal() {
         let total = 0;
-
         cart.forEach(item => {
             const product = productDetails[item.code];
             total += product.price * item.quantity;
@@ -143,139 +73,64 @@ domReady(function () {
     });
 
     document.getElementById('generate-bill').addEventListener('click', () => {
-        if (!upiDetails.upiId || !upiDetails.name || !upiDetails.note) {
-            alert('Please set up your UPI details in the UPI QR Code section first.');
+        if (cart.length === 0) {
+            alert('Cart is empty. Please add items before generating a bill.');
             return;
         }
 
-        // Calculate total from cart
-        let totalAmount = 0;
-        cart.forEach((item) => {
-            const product = productDetails[item.code];
-            totalAmount += product.price * item.quantity;
-        });
-
-        // Generate UPI URL and QR Code
-        const upiUrl = `upi://pay?pa=${upiDetails.upiId}&pn=${upiDetails.name}&am=${totalAmount.toFixed(2)}&cu=INR&tn=${upiDetails.note}`;
-        
-        const qrCode = new QRCodeStyling({
-            width: 300,
-            height: 300,
-            data: upiUrl,
-            dotsOptions: { color: "#000", type: "rounded" },
-            backgroundOptions: { color: "#fff" }
-        });
-
-        // Render QR Code
-        const qrCodeDiv = document.getElementById('bill-qr-code');
-        qrCodeDiv.innerHTML = '';
-        qrCode.append(qrCodeDiv);
-
-        // Generate PDF
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        
+
         let yPos = 20;
         doc.setFontSize(16);
         doc.text("Invoice", 90, yPos);
         yPos += 10;
 
-        // Table Headers
+        // Table Header
         doc.setFontSize(12);
         doc.text("Product", 20, yPos);
         doc.text("Qty", 100, yPos);
         doc.text("Price", 140, yPos);
         yPos += 10;
 
-        // Cart Items
+        let totalAmount = 0;
         cart.forEach((item) => {
             const product = productDetails[item.code];
             const itemTotal = product.price * item.quantity;
-            
+            totalAmount += itemTotal;
+
             doc.text(product.name, 20, yPos);
             doc.text(String(item.quantity), 105, yPos);
             doc.text("₹" + itemTotal.toFixed(2), 140, yPos);
             yPos += 10;
         });
 
-        // Total
+        // Total Amount
         yPos += 10;
         doc.setFontSize(14);
-        doc.text(`Total: ₹${totalAmount.toFixed(2)}`, 20, yPos);
+        doc.text("Total: ₹" + totalAmount.toFixed(2), 20, yPos);
 
-        // Add QR Code to PDF
-        const qrCanvas = qrCodeDiv.querySelector('canvas');
+        // QR Code (Convert to Image)
+        const qrCanvas = document.querySelector("#bill-qr-code canvas");
         if (qrCanvas) {
-            const qrImage = qrCanvas.toDataURL('image/png');
-            doc.addImage(qrImage, 'PNG', 20, yPos + 10, 50, 50);
+            const qrImage = qrCanvas.toDataURL("image/png");
+            doc.addImage(qrImage, "PNG", 20, yPos + 10, 50, 50);
         }
 
-        // Open PDF for printing
-        doc.output('dataurlnewwindow');
+        // Open PDF in new tab
+        doc.output("dataurlnewwindow");
 
-        // Save to history
-        const bill = {
-            date: new Date().toLocaleString(),
-            items: [...cart],
-            total: totalAmount.toFixed(2)
-        };
-        billHistory.push(bill);
-        saveToLocalStorage('billHistory', billHistory);
+        // Save bill to history
+        billHistory.push({ date: new Date().toLocaleString(), items: [...cart], total: totalAmount });
+        saveToLocalStorage("billHistory", billHistory);
+
+        alert("Total Bill: ₹" + totalAmount);
 
         // Clear cart
         cart = [];
         displayCart();
-        alert(`Total Bill: ₹${totalAmount.toFixed(2)}`);
     });
 
-    document.getElementById('qrForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const upiId = document.getElementById('upi_id').value;
-        const name = document.getElementById('name').value;
-        const note = document.getElementById('note').value;
-
-        upiDetails = { upiId, name, note };
-        saveToLocalStorage('upiDetails', upiDetails);
-
-        alert('UPI details saved.');
-    });
-
-    document.getElementById('download-data').addEventListener('click', () => {
-        const data = {
-            productDetails,
-            cart,
-            upiDetails
-        };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'data.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    });
-
-    document.getElementById('upload-data').addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = JSON.parse(e.target.result);
-                if (data.productDetails) productDetails = data.productDetails;
-                if (data.cart) cart = data.cart;
-                if (data.upiDetails) upiDetails = data.upiDetails;
-                saveToLocalStorage('productDetails', productDetails);
-                saveToLocalStorage('upiDetails', upiDetails);
-                alert('Data imported successfully.');
-            };
-            reader.readAsText(file);
-        }
-    });
-
-    // Display Bill History
     document.getElementById('option5-button').addEventListener('click', () => {
         const billHistoryContainer = document.getElementById('bill-history');
         billHistoryContainer.innerHTML = '';
@@ -299,10 +154,31 @@ domReady(function () {
                 `;
             });
         } else {
-            billHistoryContainer.innerHTML = '<p>No bills found in history.</p>';
+            billHistoryContainer.innerHTML = '<p>No bills found.</p>';
         }
     });
 
-    // Initialize the application
-    switchToOption1();
+    let html5QrcodeScannerOption1 = new Html5QrcodeScanner(
+        "my-qr-reader-option1",
+        {
+            fps: 30,
+            qrbox: { width: 250, height: 250 },
+            experimentalFeatures: {
+                useBarCodeDetectorIfSupported: true
+            }
+        }
+    );
+    html5QrcodeScannerOption1.render(onScanSuccessOption1);
+
+    let html5QrcodeScannerOption2 = new Html5QrcodeScanner(
+        "my-qr-reader-option2",
+        {
+            fps: 30,
+            qrbox: { width: 250, height: 250 },
+            experimentalFeatures: {
+                useBarCodeDetectorIfSupported: true
+            }
+        }
+    );
+    html5QrcodeScannerOption2.render(onScanSuccessOption2);
 });

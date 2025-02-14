@@ -187,46 +187,56 @@ domReady(function () {
     });
 
     document.getElementById('generate-bill').addEventListener('click', () => {
-        const totalAmount = document.getElementById('total').innerText.split('₹')[1];
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
 
-        if (!upiDetails.upiId || !upiDetails.name || !upiDetails.note) {
-            alert('Please set up your UPI details in the UPI QR Code section first.');
-            return;
-        }
+        let yPos = 20;
+        doc.setFontSize(16);
+        doc.text("Invoice", 90, yPos);
+        yPos += 10;
 
-        const upiUrl = `upi://pay?pa=${upiDetails.upiId}&pn=${upiDetails.name}&am=${totalAmount}&cu=INR&tn=${upiDetails.note}`;
+        // Table Header
+        doc.setFontSize(12);
+        doc.text("Product", 20, yPos);
+        doc.text("Qty", 100, yPos);
+        doc.text("Price", 140, yPos);
+        yPos += 10;
 
-        const qrCode = new QRCodeStyling({
-            width: 300,
-            height: 300,
-            data: upiUrl,
-            dotsOptions: {
-                color: "#000",
-                type: "rounded"
-            },
-            backgroundOptions: {
-                color: "#fff",
-            }
+        let totalAmount = 0;
+
+        cart.forEach((item, index) => {
+            const product = productDetails[item.code];
+            const itemTotal = product.price * item.quantity;
+            totalAmount += itemTotal;
+
+            doc.text(product.name, 20, yPos);
+            doc.text(String(item.quantity), 105, yPos);
+            doc.text("₹" + itemTotal.toFixed(2), 140, yPos);
+            yPos += 10;
         });
 
-        document.getElementById('bill-qr-code').innerHTML = "";
-        qrCode.append(document.getElementById('bill-qr-code'));
+        // Total Amount
+        yPos += 10;
+        doc.setFontSize(14);
+        doc.text("Total: ₹" + totalAmount.toFixed(2), 20, yPos);
+
+        // QR Code (Convert to Image)
+        const qrCanvas = document.querySelector("#bill-qr-code canvas");
+        if (qrCanvas) {
+            const qrImage = qrCanvas.toDataURL("image/png");
+            doc.addImage(qrImage, "PNG", 20, yPos + 10, 50, 50);
+        }
+
+        // Open PDF in new tab
+        doc.output("dataurlnewwindow");
 
         // Save bill to history
-        const bill = {
-            date: new Date().toLocaleString(),
-            items: [...cart],
-            total: totalAmount
-        };
-        billHistory.push(bill);
-        saveToLocalStorage('billHistory', billHistory);
+        billHistory.push({ date: new Date().toLocaleString(), items: [...cart], total: totalAmount });
+        saveToLocalStorage("billHistory", billHistory);
 
-        alert('Total Bill: ₹' + totalAmount);
+        alert("Total Bill: ₹" + totalAmount);
 
-        // Print the bill
-        printBill();
-
-        // Clear the cart after generating the bill
+        // Clear cart
         cart = [];
         displayCart();
     });

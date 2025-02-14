@@ -301,7 +301,7 @@ domReady(function () {
             }
         }
     );
-        html5QrcodeScannerOption1.render(onScanSuccessOption1);
+    html5QrcodeScannerOption1.render(onScanSuccessOption1);
 
     let html5QrcodeScannerOption2 = new Html5QrcodeScanner(
         "my-qr-reader-option2",
@@ -314,13 +314,4 @@ domReady(function () {
         }
     );
     html5QrcodeScannerOption2.render(onScanSuccessOption2);
-
-    // Add listeners for switching between options
-    document.getElementById('option1-button').addEventListener('click', () => switchToOption1());
-    document.getElementById('option2-button').addEventListener('click', () => switchToOption2());
-    document.getElementById('option3-button').addEventListener('click', () => switchToOption3());
-    document.getElementById('option4-button').addEventListener('click', () => switchToOption4());
-    document.getElementById('option5-button').addEventListener('click', () => switchToOption5());
 });
-
-                                     

@@ -18,7 +18,10 @@ function loadFromLocalStorage(key) {
     return value ? JSON.parse(value) : null;
 }
 
-domReady(function () {
+domReady(function () { 
+    document.getElementById('moreButton').addEventListener('click', function() {
+        document.getElementById('moreOptions').classList.toggle('hidden');
+    });
     let productDetails = loadFromLocalStorage('productDetails') || {};
     let cart = [];
     let upiDetails = loadFromLocalStorage('upiDetails') || {};

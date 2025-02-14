@@ -89,3 +89,7 @@ button:hover {
         width: 100%;
     }
 }
+
+.hidden {
+    display: none;
+}

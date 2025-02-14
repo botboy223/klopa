@@ -15,78 +15,44 @@ function loadFromLocalStorage(key) {
     return value ? JSON.parse(value) : null;
 }
 
-function showMoreOptions() {
-    const moreOptions = document.getElementById('moreOptions');
-    moreOptions.classList.toggle('hidden');
-}
-
 function switchToOption1() {
-    hideAllOptions();
-    document.getElementById('option1').classList.remove('hidden');
+    document.getElementById('option1').style.display = 'block';
+    document.getElementById('option2').style.display = 'none';
+    document.getElementById('option3').style.display = 'none';
+    document.getElementById('option4').style.display = 'none';
+    document.getElementById('option5').style.display = 'none';
 }
 
 function switchToOption2() {
-    hideAllOptions();
-    document.getElementById('option2').classList.remove('hidden');
+    document.getElementById('option1').style.display = 'none';
+    document.getElementById('option2').style.display = 'block';
+    document.getElementById('option3').style.display = 'none';
+    document.getElementById('option4').style.display = 'none';
+    document.getElementById('option5').style.display = 'none';
 }
 
 function switchToOption3() {
-    hideAllOptions();
-    document.getElementById('option3').classList.remove('hidden');
+    document.getElementById('option1').style.display = 'none';
+    document.getElementById('option2').style.display = 'none';
+    document.getElementById('option3').style.display = 'block';
+    document.getElementById('option4').style.display = 'none';
+    document.getElementById('option5').style.display = 'none';
 }
 
 function switchToOption4() {
-    hideAllOptions();
-    document.getElementById('option4').classList.remove('hidden');
+    document.getElementById('option1').style.display = 'none';
+    document.getElementById('option2').style.display = 'none';
+    document.getElementById('option3').style.display = 'none';
+    document.getElementById('option4').style.display = 'block';
+    document.getElementById('option5').style.display = 'none';
 }
 
 function switchToOption5() {
-    hideAllOptions();
-    document.getElementById('option5').classList.remove('hidden');
-}
-
-function hideAllOptions() {
-    document.getElementById('option1').classList.add('hidden');
-    document.getElementById('option2').classList.add('hidden');
-    document.getElementById('option3').classList.add('hidden');
-    document.getElementById('option4').classList.add('hidden');
-    document.getElementById('option5').classList.add('hidden');
-}
-
-function printBill() {
-    const billItems = document.getElementById('print-bill-items');
-    const printTotal = document.getElementById('print-total');
-    const printQrCode = document.getElementById('print-qr-code');
-
-    // Clear previous content
-    billItems.innerHTML = '';
-    printTotal.innerText = 'Total: ₹0';
-    printQrCode.innerHTML = '';
-
-    // Populate bill items
-    cart.forEach(item => {
-        const product = productDetails[item.code];
-        const itemDiv = document.createElement('div');
-        itemDiv.innerHTML = `${product.name} (x${item.quantity}) - ₹${product.price * item.quantity}`;
-        billItems.appendChild(itemDiv);
-    });
-
-    // Set total
-    const totalAmount = document.getElementById('total').innerText.split('₹')[1];
-    printTotal.innerText = `Total: ₹${totalAmount}`;
-
-    // Copy QR code to printable bill
-    const qrCodeElement = document.getElementById('bill-qr-code').cloneNode(true);
-    printQrCode.appendChild(qrCodeElement);
-
-    // Show printable bill
-    document.getElementById('printable-bill').classList.remove('hidden');
-
-    // Trigger print dialog
-    window.print();
-
-    // Hide printable bill after printing
-    document.getElementById('printable-bill').classList.add('hidden');
+    document.getElementById('option1').style.display = 'none';
+    document.getElementById('option2').style.display = 'none';
+    document.getElementById('option3').style.display = 'none';
+    document.getElementById('option4').style.display = 'none';
+    document.getElementById('option5').style.display = 'block';
 }
 
 domReady(function () {
@@ -94,16 +60,6 @@ domReady(function () {
     let cart = [];
     let upiDetails = loadFromLocalStorage('upiDetails') || {};
     let billHistory = loadFromLocalStorage('billHistory') || [];
-
-    // Event listeners for buttons
-    document.getElementById('moreButton').addEventListener('click', showMoreOptions);
-    document.getElementById('option1-button').addEventListener('click', switchToOption1);
-    document.getElementById('option3-button').addEventListener('click', switchToOption3);
-    document.getElementById('option4-button').addEventListener('click', switchToOption4);
-    document.getElementById('option5-button').addEventListener('click', switchToOption5);
-    document.getElementById('homePageBtn').addEventListener('click', () => {
-        window.location.href = 'https://qrwale.in/';
-    });
 
     function onScanSuccessOption1(decodeText, decodeResult) {
         document.getElementById('barcode').value = decodeText;
@@ -187,58 +143,89 @@ domReady(function () {
     });
 
     document.getElementById('generate-bill').addEventListener('click', () => {
+        if (!upiDetails.upiId || !upiDetails.name || !upiDetails.note) {
+            alert('Please set up your UPI details in the UPI QR Code section first.');
+            return;
+        }
+
+        // Calculate total from cart
+        let totalAmount = 0;
+        cart.forEach((item) => {
+            const product = productDetails[item.code];
+            totalAmount += product.price * item.quantity;
+        });
+
+        // Generate UPI URL and QR Code
+        const upiUrl = `upi://pay?pa=${upiDetails.upiId}&pn=${upiDetails.name}&am=${totalAmount.toFixed(2)}&cu=INR&tn=${upiDetails.note}`;
+        
+        const qrCode = new QRCodeStyling({
+            width: 300,
+            height: 300,
+            data: upiUrl,
+            dotsOptions: { color: "#000", type: "rounded" },
+            backgroundOptions: { color: "#fff" }
+        });
+
+        // Render QR Code
+        const qrCodeDiv = document.getElementById('bill-qr-code');
+        qrCodeDiv.innerHTML = '';
+        qrCode.append(qrCodeDiv);
+
+        // Generate PDF
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-
+        
         let yPos = 20;
         doc.setFontSize(16);
         doc.text("Invoice", 90, yPos);
         yPos += 10;
 
-        // Table Header
+        // Table Headers
         doc.setFontSize(12);
         doc.text("Product", 20, yPos);
         doc.text("Qty", 100, yPos);
         doc.text("Price", 140, yPos);
         yPos += 10;
 
-        let totalAmount = 0;
-
-        cart.forEach((item, index) => {
+        // Cart Items
+        cart.forEach((item) => {
             const product = productDetails[item.code];
             const itemTotal = product.price * item.quantity;
-            totalAmount += itemTotal;
-
+            
             doc.text(product.name, 20, yPos);
             doc.text(String(item.quantity), 105, yPos);
             doc.text("₹" + itemTotal.toFixed(2), 140, yPos);
             yPos += 10;
         });
 
-        // Total Amount
+        // Total
         yPos += 10;
         doc.setFontSize(14);
-        doc.text("Total: ₹" + totalAmount.toFixed(2), 20, yPos);
+        doc.text(`Total: ₹${totalAmount.toFixed(2)}`, 20, yPos);
 
-        // QR Code (Convert to Image)
-        const qrCanvas = document.querySelector("#bill-qr-code canvas");
+        // Add QR Code to PDF
+        const qrCanvas = qrCodeDiv.querySelector('canvas');
         if (qrCanvas) {
-            const qrImage = qrCanvas.toDataURL("image/png");
-            doc.addImage(qrImage, "PNG", 20, yPos + 10, 50, 50);
+            const qrImage = qrCanvas.toDataURL('image/png');
+            doc.addImage(qrImage, 'PNG', 20, yPos + 10, 50, 50);
         }
 
-        // Open PDF in new tab
-        doc.output("dataurlnewwindow");
+        // Open PDF for printing
+        doc.output('dataurlnewwindow');
 
-        // Save bill to history
-        billHistory.push({ date: new Date().toLocaleString(), items: [...cart], total: totalAmount });
-        saveToLocalStorage("billHistory", billHistory);
-
-        alert("Total Bill: ₹" + totalAmount);
+        // Save to history
+        const bill = {
+            date: new Date().toLocaleString(),
+            items: [...cart],
+            total: totalAmount.toFixed(2)
+        };
+        billHistory.push(bill);
+        saveToLocalStorage('billHistory', billHistory);
 
         // Clear cart
         cart = [];
         displayCart();
+        alert(`Total Bill: ₹${totalAmount.toFixed(2)}`);
     });
 
     document.getElementById('qrForm').addEventListener('submit', function(e) {
@@ -312,31 +299,10 @@ domReady(function () {
                 `;
             });
         } else {
-            billHistoryContainer.innerHTML = '<p>No bills found.</p>';
+            billHistoryContainer.innerHTML = '<p>No bills found in history.</p>';
         }
     });
 
-    let html5QrcodeScannerOption1 = new Html5QrcodeScanner(
-        "my-qr-reader-option1",
-        {
-            fps: 30,
-            qrbox: { width: 250, height: 250 },
-            experimentalFeatures: {
-                useBarCodeDetectorIfSupported: true
-            }
-        }
-    );
-    html5QrcodeScannerOption1.render(onScanSuccessOption1);
-
-    let html5QrcodeScannerOption2 = new Html5QrcodeScanner(
-        "my-qr-reader-option2",
-        {
-            fps: 30,
-            qrbox: { width: 250, height: 250 },
-            experimentalFeatures: {
-                useBarCodeDetectorIfSupported: true
-            }
-        }
-    );
-    html5QrcodeScannerOption2.render(onScanSuccessOption2);
+    // Initialize the application
+    switchToOption1();
 });

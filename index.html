@@ -3,11 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <!-- Add this BEFORE script.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="script.js"></script>
-    
-
     <link rel="stylesheet" href="style.css">
     <title>QR Code Scanner / Reader</title>
     <style>
@@ -57,11 +52,10 @@
     <div class="container">
         <h1>QR Code Scanner</h1>
         <div class="button-group">
-    <button id="moreButton">More</button>
-    </div>
+            <button id="moreButton" onclick="showMoreOptions()">More</button>
+        </div>
 
-           <button id="more-button">More</button>
-    <div id="moreOptions" class="hidden">
+        <div id="moreOptions" class="hidden">
             <button id="option1-button" onclick="switchToOption1()">Set Barcode Values</button>
             <button id="option3-button" onclick="switchToOption3()">UPI QR Code</button>
             <button id="option4-button" onclick="switchToOption4()">Import/Export Data</button>
@@ -71,7 +65,6 @@
             <!-- Home Page Button -->
             <button id="homePageBtn" onclick="window.location.href='https://qrwale.in/'">Home Page</button>
         </div>
-
 
         <div id="option1" class="option hidden">
             <div id="my-qr-reader-option1"></div>
@@ -131,14 +124,6 @@
         </div>
     </div>
 
-    <!-- Printable Bill Section -->
-    <div id="printable-bill" class="printable-bill hidden">
-        <h2>Bill Details</h2>
-        <div id="print-bill-items"></div>
-        <div id="print-total">Total: ₹0</div>
-        <div id="print-qr-code"></div>
-    </div>
-
     <!-- Dialog Box -->
     <div id="dialogBox" class="dialog">
         <div class="dialog-content">
@@ -147,10 +132,61 @@
             <a href="https://drive.google.com/file/d/1zDukCzjcSFB8-73XQzS8Jtc1XftueKrI/view?usp=sharing" download>Download apk</a>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
-    
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('openDialogBtn').onclick = function() {
+            document.getElementById('dialogBox').style.display = 'block';
+        };
+
+        document.getElementById('closeDialogBtn').onclick = function() {
+            document.getElementById('dialogBox').style.display = 'none';
+        };
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('dialogBox')) {
+                document.getElementById('dialogBox').style.display = 'none';
+            }
+        };
+
+        function showMoreOptions() {
+            document.getElementById('moreOptions').classList.toggle('hidden');
+        }
+
+        function switchToOption1() {
+            hideAllOptions();
+            document.getElementById('option1').style.display = 'block';
+        }
+
+        function switchToOption2() {
+            hideAllOptions();
+            document.getElementById('option2').style.display = 'block';
+        }
+
+        function switchToOption3() {
+            hideAllOptions();
+            document.getElementById('option3').style.display = 'block';
+        }
+
+        function switchToOption4() {
+            hideAllOptions();
+            document.getElementById('option4').style.display = 'block';
+        }
+
+        function switchToOption5() {
+            hideAllOptions();
+            document.getElementById('option5').style.display = 'block';
+        }
+
+        function hideAllOptions() {
+            document.getElementById('option1').style.display = 'none';
+            document.getElementById('option2').style.display = 'none';
+            document.getElementById('option3').style.display = 'none';
+            document.getElementById('option4').style.display = 'none';
+            document.getElementById('option5').style.display = 'none';
+        }
+    </script>
 </body>
 </html>

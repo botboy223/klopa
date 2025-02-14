@@ -22,6 +22,48 @@ domReady(function () {
     document.getElementById('moreButton').addEventListener('click', function() {
         document.getElementById('moreOptions').classList.toggle('hidden');
     });
+    document.getElementById('option1-button').addEventListener('click', switchToOption1);
+    document.getElementById('option3-button').addEventListener('click', switchToOption3);
+    document.getElementById('option4-button').addEventListener('click', switchToOption4);
+    document.getElementById('option5-button').addEventListener('click', switchToOption5);
+    
+    // Home Page Button
+    document.getElementById('homePageBtn').addEventListener('click', () => {
+        window.location.href = 'https://qrwale.in/';
+    });
+
+    // Dialog Handlers
+    document.getElementById('openDialogBtn').addEventListener('click', () => {
+        document.getElementById('dialogBox').style.display = 'block';
+    });
+
+    // Option Switching Functions
+    function switchToOption1() {
+        hideAllOptions();
+        document.getElementById('option1').style.display = 'block';
+    }
+
+    function switchToOption3() {
+        hideAllOptions();
+        document.getElementById('option3').style.display = 'block';
+    }
+
+    function switchToOption4() {
+        hideAllOptions();
+        document.getElementById('option4').style.display = 'block';
+    }
+
+    function switchToOption5() {
+        hideAllOptions();
+        document.getElementById('option5').style.display = 'block';
+    }
+
+    function hideAllOptions() {
+        document.querySelectorAll('.option').forEach(option => {
+            option.style.display = 'none';
+        });
+    }
+
     let productDetails = loadFromLocalStorage('productDetails') || {};
     let cart = [];
     let upiDetails = loadFromLocalStorage('upiDetails') || {};

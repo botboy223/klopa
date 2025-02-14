@@ -161,7 +161,8 @@ domReady(function () {
 
             // Create PDF
             const doc = new jsPDF();
-            let yPos = 20;
+            doc.setFont("helvetica"); // Default font for text
+            doc.setFontSize(12);
 
             // Header
             doc.setFontSize(22);
@@ -185,13 +186,22 @@ domReady(function () {
 
             cart.forEach(item => {
                 const product = productDetails[item.code];
-                const itemPrice = product?.price || 0; // Handle missing prices
+                const itemPrice = product?.price || 0;
                 const itemTotal = itemPrice * item.quantity;
             
-                doc.text(product?.name || 'Unknown', 22, yPos);
-                doc.text(item.quantity.toString(), 102, yPos);
-                doc.text(`₹${itemTotal.toFixed(2)}`, 162, yPos); // Proper formatting
-                yPos += 8;
+                // Use monospace font for numbers
+                doc.setFont("courier"); 
+                
+                // Item Name (Left-aligned)
+                doc.text(product?.name || 'Unknown', 20, yPos);
+                
+                // Quantity (Center-aligned)
+                doc.text(item.quantity.toString(), 100, yPos, { align: 'center' });
+                
+                // Price (Right-aligned)
+                doc.text(`₹${itemTotal.toFixed(2)}`, 170, yPos, { align: 'right' });
+                
+                yPos += 10;
             });
 
             // Total

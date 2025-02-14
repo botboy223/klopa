@@ -16,43 +16,72 @@ function loadFromLocalStorage(key) {
 }
 
 function switchToOption1() {
+    hideAllOptions();
     document.getElementById('option1').style.display = 'block';
-    document.getElementById('option2').style.display = 'none';
-    document.getElementById('option3').style.display = 'none';
-    document.getElementById('option4').style.display = 'none';
-    document.getElementById('option5').style.display = 'none';
 }
 
 function switchToOption2() {
-    document.getElementById('option1').style.display = 'none';
+    hideAllOptions();
     document.getElementById('option2').style.display = 'block';
-    document.getElementById('option3').style.display = 'none';
-    document.getElementById('option4').style.display = 'none';
-    document.getElementById('option5').style.display = 'none';
 }
 
 function switchToOption3() {
-    document.getElementById('option1').style.display = 'none';
-    document.getElementById('option2').style.display = 'none';
+    hideAllOptions();
     document.getElementById('option3').style.display = 'block';
-    document.getElementById('option4').style.display = 'none';
-    document.getElementById('option5').style.display = 'none';
 }
 
 function switchToOption4() {
-    document.getElementById('option1').style.display = 'none';
-    document.getElementById('option2').style.display = 'none';
-    document.getElementById('option3').style.display = 'none';
+    hideAllOptions();
     document.getElementById('option4').style.display = 'block';
-    document.getElementById('option5').style.display = 'none';
 }
 
 function switchToOption5() {
+    hideAllOptions();
+    document.getElementById('option5').style.display = 'block';
+}
+
+function hideAllOptions() {
     document.getElementById('option1').style.display = 'none';
     document.getElementById('option2').style.display = 'none';
     document.getElementById('option3').style.display = 'none';
     document.getElementById('option4').style.display = 'none';
-    document.getElementById('option5').style.display = 'block';
+    document.getElementById('option5').style.display = 'none';
+}
+
+function printBill() {
+    const billItems = document.getElementById('print-bill-items');
+    const printTotal = document.getElementById('print-total');
+    const printQrCode = document.getElementById('print-qr-code');
+
+    // Clear previous content
+    billItems.innerHTML = '';
+    printTotal.innerText = 'Total: ₹0';
+    printQrCode.innerHTML = '';
+
+    // Populate bill items
+    cart.forEach(item => {
+        const product = productDetails[item.code];
+        const itemDiv = document.createElement('div');
+        itemDiv.innerHTML = `${product.name} (x${item.quantity}) - ₹${product.price * item.quantity}`;
+        billItems.appendChild(itemDiv);
+    });
+
+    // Set total
+    const totalAmount = document.getElementById('total').innerText.split('₹')[1];
+    printTotal.innerText = `Total: ₹${totalAmount}`;
+
+    // Copy QR code to printable bill
+    const qrCodeElement = document.getElementById('bill-qr-code').cloneNode(true);
+    printQrCode.appendChild(qrCodeElement);
+
+    // Show printable bill
+    document.getElementById('printable-bill').classList.remove('hidden');
+
+    // Trigger print dialog
+    window.print();
+
+    // Hide printable bill after printing
+    document.getElementById('printable-bill').classList.add('hidden');
 }
 
 domReady(function () {
@@ -179,6 +208,9 @@ domReady(function () {
 
         alert('Total Bill: ₹' + totalAmount);
 
+        // Print the bill
+        printBill();
+
         // Clear the cart after generating the bill
         cart = [];
         displayCart();
@@ -269,7 +301,7 @@ domReady(function () {
             }
         }
     );
-    html5QrcodeScannerOption1.render(onScanSuccessOption1);
+        html5QrcodeScannerOption1.render(onScanSuccessOption1);
 
     let html5QrcodeScannerOption2 = new Html5QrcodeScanner(
         "my-qr-reader-option2",
@@ -282,4 +314,13 @@ domReady(function () {
         }
     );
     html5QrcodeScannerOption2.render(onScanSuccessOption2);
+
+    // Add listeners for switching between options
+    document.getElementById('option1-button').addEventListener('click', () => switchToOption1());
+    document.getElementById('option2-button').addEventListener('click', () => switchToOption2());
+    document.getElementById('option3-button').addEventListener('click', () => switchToOption3());
+    document.getElementById('option4-button').addEventListener('click', () => switchToOption4());
+    document.getElementById('option5-button').addEventListener('click', () => switchToOption5());
 });
+
+                                     

@@ -160,9 +160,15 @@ domReady(function () {
             await new Promise(resolve => setTimeout(resolve, 500));
 
             // Create PDF
+            // In script.js, BEFORE generating the PDF
             const doc = new jsPDF();
-            doc.setFont("helvetica"); // Default font for text
-            doc.setFontSize(12);
+            
+            // Load Noto Sans font (hosted CDN example)
+            const fontUrl = "https://cdn.jsdelivr.net/npm/@pdf-lib/standard-fonts@1.0.0/NotoSans-Regular.ttf";
+            const font = await fetch(fontUrl).then(res => res.arrayBuffer());
+            doc.addFileToVFS("NotoSans-Regular.ttf", font);
+            doc.addFont("NotoSans-Regular.ttf", "NotoSans", "normal");
+            doc.setFont("NotoSans");
 
             // Header
             doc.setFontSize(22);
@@ -185,30 +191,26 @@ domReady(function () {
             yPos += 12;
 
             cart.forEach(item => {
-                const product = productDetails[item.code];
-                const itemPrice = product?.price || 0;
-                const itemTotal = itemPrice * item.quantity;
+              const product = productDetails[item.code];
+              const itemTotal = (product?.price || 0) * item.quantity;
             
-                // Use monospace font for numbers
-                doc.setFont("courier"); 
-                
-                // Item Name (Left-aligned)
-                doc.text(product?.name || 'Unknown', 20, yPos);
-                
-                // Quantity (Center-aligned)
-                doc.text(item.quantity.toString(), 100, yPos, { align: 'center' });
-                
-                // Price (Right-aligned)
-                doc.text(`₹${itemTotal.toFixed(2)}`, 170, yPos, { align: 'right' });
-                
-                yPos += 10;
+              // Item Name (left-aligned)
+              doc.text(product?.name || "Unknown", 20, yPos);
+            
+              // Quantity (center-aligned)
+              doc.text(item.quantity.toString(), 80, yPos, { align: "center" });
+            
+              // Price (right-aligned with ₹ symbol)
+              doc.text(`₹${itemTotal.toFixed(2)}`, 170, yPos, { align: "right" }); // 170 = right margin
+            
+              yPos += 10;
             });
 
-            // Total
-            yPos += 10;
             doc.setFontSize(14);
-            doc.text(`Total Amount: ₹${totalAmount.toFixed(2)}`, 20, yPos);
-
+            doc.text(`Total Amount: ₹${totalAmount.toFixed(2)}`, 20, yPos, { 
+              align: "left",
+              fontStyle: "bold"
+            });
             // Add QR Code
             const qrCanvas = qrContainer.querySelector('canvas');
             if (qrCanvas) {

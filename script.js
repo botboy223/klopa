@@ -18,15 +18,15 @@ function loadFromLocalStorage(key) {
     return value ? JSON.parse(value) : null;
 }
 
-domReady(function () { 
-    document.getElementById('moreButton').addEventListener('click', function() {
-        document.getElementById('moreOptions').classList.toggle('hidden');
-    });
+domReady(function () 
     document.getElementById('option1-button').addEventListener('click', switchToOption1);
     document.getElementById('option3-button').addEventListener('click', switchToOption3);
     document.getElementById('option4-button').addEventListener('click', switchToOption4);
     document.getElementById('option5-button').addEventListener('click', switchToOption5);
-    
+    { 
+    document.getElementById('moreButton').addEventListener('click', function() {
+        document.getElementById('moreOptions').classList.toggle('hidden');
+    });
     // Home Page Button
     document.getElementById('homePageBtn').addEventListener('click', () => {
         window.location.href = 'https://qrwale.in/';

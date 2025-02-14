@@ -19,14 +19,44 @@ function loadFromLocalStorage(key) {
 }
 
 domReady(function () 
+    // Initialize first
+    document.getElementById('moreButton').addEventListener('click', function() {
+        document.getElementById('moreOptions').classList.toggle('hidden');
+    });
+
+    // Declare functions FIRST
+    function switchToOption1() {
+        hideAllOptions();
+        document.getElementById('option1').classList.remove('hidden');
+    }
+
+    function switchToOption3() {
+        hideAllOptions();
+        document.getElementById('option3').classList.remove('hidden');
+    }
+
+    function switchToOption4() {
+        hideAllOptions();
+        document.getElementById('option4').classList.remove('hidden');
+    }
+
+    function switchToOption5() {
+        hideAllOptions();
+        document.getElementById('option5').classList.remove('hidden');
+    }
+
+    function hideAllOptions() {
+        document.querySelectorAll('.option').forEach(option => {
+            option.classList.add('hidden');
+        });
+    }
+
+    // Add event listeners AFTER function declarations
     document.getElementById('option1-button').addEventListener('click', switchToOption1);
     document.getElementById('option3-button').addEventListener('click', switchToOption3);
     document.getElementById('option4-button').addEventListener('click', switchToOption4);
     document.getElementById('option5-button').addEventListener('click', switchToOption5);
-    { 
-    document.getElementById('moreButton').addEventListener('click', function() {
-        document.getElementById('moreOptions').classList.toggle('hidden');
-    });
+
     // Home Page Button
     document.getElementById('homePageBtn').addEventListener('click', () => {
         window.location.href = 'https://qrwale.in/';

@@ -15,21 +15,21 @@ body {
     padding: 30px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    text-align: center; /* Center the content in the container */
+    text-align: center;
     width: 100%;
 }
 
 .element {
-    margin-bottom: 22px; /* Apply margin-bottom to space out elements */
+    margin-bottom: 22px;
 }
 
 .input-group {
-    text-align: left; /* Align the input group elements to the left */
-    margin-bottom: 10px; /* Add spacing between input groups */
+    text-align: left;
+    margin-bottom: 10px;
 }
 
 input {
-    width: 100%; /* Make input fields take up full width */
+    width: 100%;
     padding: 12px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -44,7 +44,7 @@ button {
     color: white;
     border-radius: 5px;
     transition: background-color 0.3s;
-    margin-bottom: 22px; /* Add margin to buttons */
+    margin-bottom: 22px;
 }
 
 button:hover {
@@ -65,3 +65,27 @@ button:hover {
     }
 }
 
+/* Printable Bill Styling */
+.printable-bill {
+    display: none;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .printable-bill, .printable-bill * {
+        visibility: visible;
+    }
+    .printable-bill {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+}

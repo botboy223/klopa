@@ -48,16 +48,16 @@ domReady(function () {
     html5QrcodeScannerOption2.render((decodeText) => {
         if (productDetails[decodeText]) {
             const existingItem = cart.find(item => item.code === decodeText);
-            if (existingItem) {
-                existingItem.quantity++;
-            } else {
+            // Always add new item with quantity 1 if not exists
+            if (!existingItem) {
                 cart.push({ code: decodeText, quantity: 1 });
+                displayCart();
             }
-            displayCart();
         } else {
             alert(`Product ${decodeText} not found!`);
         }
     });
+
 
     // Cart Display
     function displayCart() {
